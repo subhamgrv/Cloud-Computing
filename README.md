@@ -59,6 +59,33 @@ terraform apply
 
 ---
 
+## 🛠️ Configuration & Secrets
+
+Before running `terraform apply`, you **must** configure several environment-specific variables and replace hardcoded secrets in the codebase. 
+
+### 1. Terraform Variables (`main.tf` & `terraform.tfvars`)
+Create a file named `terraform.tfvars` (this file is ignored by `.gitignore`) and provide your GitHub Personal Access Token (used for cloning the repository):
+
+```hcl
+github_token = "your-github-personal-access-token"
+```
+
+In `main.tf`, you should update the `locals` block with your specific OpenStack credentials and network configuration:
+* `auth_url`: Your OpenStack identity endpoint.
+* `user_name` & `user_password`: Your OpenStack credentials.
+* `tenant_name`: Your OpenStack project/tenant name.
+* `floating_net`: The name of the external network providing floating IPs (e.g., `ext_net`).
+* `dns_nameservers`: Add your network's DNS nameservers.
+
+### 2. Database & Application Secrets
+Currently, some secrets are hardcoded in the baseline provisioning scripts. **For a production environment, you should extract these into Terraform variables.** If you are running this as-is, be aware of the following hardcoded values:
+
+* **MariaDB Password:** Hardcoded in `userdata-db.sh` (Line 19) and `userdata-app.sh.tpl` (Line 30). Change `'abcd@1234'` to a secure password.
+* **JWT Secret:** Hardcoded in `userdata-app.sh.tpl` (Line 32). Change `supersecretrandomstring42` to a secure random string for JWT signing.
+* **Admin Login:** The initial application administrator login is seeded in `userdata-db.sh` (Lines 197-204) as `administrator@hs-fulda.de` / `Password1234`.
+
+---
+
 ## 🌐 Accessing the Application
 
 | Component          | URL / Command                                   | Notes                                     |
